@@ -89,7 +89,50 @@ window.signIn=async function(){const v=credentials();if(!v)return;const {error}=
 window.signOut=async function(){if(!supabase)return;const {error}=await supabase.auth.signOut();if(error){message('Ошибка выхода: '+error.message,'bad');return}message('Ты вышел из аккаунта.');await refreshSession()};
 async function refreshSession(){if(!supabase)return;const {data}=await supabase.auth.getSession();const user=data.session?.user;document.getElementById('logoutBtn').style.display=user?'inline-block':'none';document.getElementById('loginBtn').style.display=user?'none':'inline-block';document.getElementById('registerBtn').style.display=user?'none':'inline-block';document.getElementById('profileEmail').textContent=user?user.email:'Войди, чтобы связать профиль с аккаунтом'}
 if(supabase){message('Supabase подключён. Можно зарегистрироваться или войти.','good');refreshSession();supabase.auth.onAuthStateChange(()=>refreshSession())}
-function saveProfile(){constv=document.getElementById("nickname").value.trim();if(!v){toast("Сначала введи никнейм.");return}try{localStorage.setItem("cf-faceit-nick",v)}catch(e){}document.getElementById("displayNick").textContent=v;toast("Ник сохранён на этом устройстве!")}
+ async function saveProfile(){
+  const v = document.getElementById("nickname").value.trim();
+
+  if (!v) {
+    toast("Сначала введи никнейм.");
+    return;
+  }
+
+  if (v.length > 20) {
+    toast("Никнейм должен быть не длиннее 20 символов.");
+    return;
+  }
+
+  try {
+    localStorage.setItem("cf-faceit-nick", v);
+  } catch(e) {}
+
+  document.getElementById("displayNick").textContent = v;
+
+  if (supabase) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const user = sessionData.session?.user;
+
+    if (user) {
+      const { error } = await supabase
+        .from("player_profiles")
+        .upsert({
+          user_id: user.id,
+          nickname: v,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) {
+        toast("Ник сохранён на устройстве, но не в базе: " + error.message);
+        return;
+      }
+
+      toast("Ник сохранён! Другие игроки смогут его увидеть.");
+      return;
+    }
+  }
+
+  toast("Ник сохранён на этом устройстве. Войди в аккаунт, чтобы сохранить его для других.");
+ }
 window.saveProfile=saveProfile;
  
 window.createLobby = async function() {
