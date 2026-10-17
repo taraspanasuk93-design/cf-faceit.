@@ -195,7 +195,7 @@ window.loadLobbies = async function() {
     return;
   }
 
-  const { data, error } = await supabase
+  const { data: lobbies, error } = await supabase
     .from("lobbies")
     .select("id, title, map_name, max_players, created_at")
     .eq("status", "waiting")
@@ -208,33 +208,47 @@ window.loadLobbies = async function() {
 
   list.replaceChildren();
 
-  if (!data || data.length === 0) {
+  if (!lobbies || lobbies.length === 0) {
     list.textContent = "Лобби пока нет. Создай первое!";
     return;
   }
 
-  const lobbyIds = data.map(lobby => lobby.id);
+  const ids = lobbies.map(lobby => lobby.id);
+
   const { data: members, error: membersError } = await supabase
     .from("lobby_players")
     .select("lobby_id, player_id")
-    .in("lobby_id", lobbyIds);
+    .in("lobby_id", ids);
 
   if (membersError) {
-    list.textContent = "Ошибка загрузки игроков: " + membersError.message;
+    list.textContent = "Ошибка игроков: " + membersError.message;
     return;
   }
 
-  for (const lobby of data) {
-    const lobbyMembers = members.filter(
-      member => member.lobby_id === lobby.id
-    );
-    const alreadyJoined = lobbyMembers.some(
-      member => member.player_id === user.id
-    );
+  const playerIds = [...new Set(members.map(m => m.player_id))];
+  let profiles = [];
+
+  if (playerIds.length) {
+    const { data, error: profilesError } = await supabase
+      .from("player_profiles")
+      .select("user_id, nickname")
+      .in("user_id", playerIds);
+
+    if (profilesError) {
+      list.textContent = "Ошибка ников: " + profilesError.message;
+      return;
+    }
+
+    profiles = data || [];
+  }
+
+  for (const lobby of lobbies) {
+    const lobbyMembers = members.filter(m => m.lobby_id === lobby.id);
+    const joined = lobbyMembers.some(m => m.player_id === user.id);
 
     const card = document.createElement("div");
     card.className = "card";
-    card.style.marginBottom = "10px";
+    card.style.marginBottom = "12px";
 
     const heading = document.createElement("h3");
     heading.textContent = lobby.title;
@@ -246,16 +260,46 @@ window.loadLobbies = async function() {
     const count = document.createElement("p");
     count.textContent = "Игроки: " + lobbyMembers.length + "/" + lobby.max_players;
 
-    const joinButton = document.createElement("button");
-    joinButton.className = "btn";
-    joinButton.textContent = alreadyJoined ? "Ты уже в лобби" : "Присоединиться";
-    joinButton.disabled = alreadyJoined || lobbyMembers.length >= lobby.max_players;
-    joinButton.onclick = () => window.joinLobby(lobby.id);
+    const membersTitle = document.createElement("p");
+    membersTitle.textContent = "Участники:";
 
-    card.append(heading, info, count, joinButton);
+    const membersList = document.createElement("ul");
+    membersList.style.paddingLeft = "22px";
+
+    if (!lobbyMembers.length) {
+      const li = document.createElement("li");
+      li.textContent = "Пока никого нет";
+      membersList.appendChild(li);
+    }
+
+    for (const member of lobbyMembers) {
+      const profile = profiles.find(p => p.user_id === member.player_id);
+      const li = document.createElement("li");
+      li.textContent = profile?.nickname || "Игрок";
+      membersList.appendChild(li);
+    }
+
+    card.append(heading, info, count, membersTitle, membersList);
+
+    if (joined) {
+      const leaveButton = document.createElement("button");
+      leaveButton.className = "btn secondary";
+      leaveButton.textContent = "Покинуть лобби";
+      leaveButton.onclick = () => window.leaveLobby(lobby.id);
+      card.appendChild(leaveButton);
+    } else {
+      const joinButton = document.createElement("button");
+      joinButton.className = "btn";
+      joinButton.textContent = "Присоединиться";
+      joinButton.disabled = lobbyMembers.length >= lobby.max_players;
+      joinButton.onclick = () => window.joinLobby(lobby.id);
+      card.appendChild(joinButton);
+    }
+
     list.appendChild(card);
   }
 };
+
 
 window.joinLobby = async function(lobbyId) {
   if (!supabase) {
@@ -283,8 +327,31 @@ window.joinLobby = async function(lobbyId) {
   toast("Ты присоединился к лобби!");
   await window.loadLobbies();
 };
-   
+ window.leaveLobby = async function(lobbyId) {
+  if (!supabase) return;
 
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData.session?.user;
+
+  if (!user) {
+    toast("Сначала войди в аккаунт.");
+    return;
+  }
+
+  const { error } = await supabase
+    .from("lobby_players")
+    .delete()
+    .eq("lobby_id", lobbyId)
+    .eq("player_id", user.id);
+
+  if (error) {
+    toast("Не удалось выйти: " + error.message);
+    return;
+  }
+
+  toast("Ты покинул лобби.");
+  await window.loadLobbies();
+};  
 try{const saved=localStorage.getItem("cf-faceit-nick");if(saved){document.getElementById("displayNick").textContent=saved;document.getElementById("nickname").value=saved}}catch(e){}
 </script>
 </body>
@@ -292,3 +359,5 @@ try{const saved=localStorage.getItem("cf-faceit-nick");if(saved){document.getEle
 
   
 
+
+ 
