@@ -91,12 +91,43 @@ async function refreshSession(){if(!supabase)return;const {data}=await supabase.
 if(supabase){message('Supabase подключён. Можно зарегистрироваться или войти.','good');refreshSession();supabase.auth.onAuthStateChange(()=>refreshSession())}
 function saveProfile(){constv=document.getElementById("nickname").value.trim();if(!v){toast("Сначала введи никнейм.");return}try{localStorage.setItem("cf-faceit-nick",v)}catch(e){}document.getElementById("displayNick").textContent=v;toast("Ник сохранён на этом устройстве!")}
 window.saveProfile=saveProfile;
-window.createLobby = async function() {if (!supabase) {toast("Supabase не подключён.");return;}const { data: sessionData } = await supabase.auth.getSession();const user = sessionData.session?.user;if (!user) {toast("Сначала войди в аккаунт.");go("profile");return;}
-const title = document.getElementById("lobbyTitle").value.trim() || "Рейтинговое лобби";
-const mapName = document.getElementById("lobbyMap").value;
-const { data, error } = await supabase.from("lobbies").insert({owner_id: user.id,title: title,game_mode: "5v5",map_name: mapName,max_players: 10}).select().single();
-if (error) {toast("Ошибка: " + error.message);return;}
-const { error: joinError } = await supabase.rpc("join_lobby", {p_lobby_id: data.id});if (joinError) {
+ 
+window.createLobby = async function() {
+  if (!supabase) {
+    toast("Supabase не подключён.");
+    return;
+  }
+
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData.session?.user;
+
+  if (!user) {
+    toast("Сначала войди в аккаунт.");
+    go("profile");
+    return;
+  }
+
+  const title = document.getElementById("lobbyTitle").value.trim() || "Рейтинговое лобби";
+  const mapName = document.getElementById("lobbyMap").value;
+
+  const { data, error } = await supabase.from("lobbies").insert({
+    owner_id: user.id,
+    title: title,
+    game_mode: "5v5",
+    map_name: mapName,
+    max_players: 10
+  }).select().single();
+
+  if (error) {
+    toast("Ошибка: " + error.message);
+    return;
+  }
+
+  const { error: joinError } = await supabase.rpc("join_lobby", {
+    p_lobby_id: data.id
+  });
+
+  if (joinError) {
     toast("Лобби создано, но владелец не добавлен: " + joinError.message);
   } else {
     toast("Лобби создано!");
@@ -208,6 +239,9 @@ window.joinLobby = async function(lobbyId) {
 
   toast("Ты присоединился к лобби!");
   await window.loadLobbies();
+};
+   
+
 };
 try{const saved=localStorage.getItem("cf-faceit-nick");if(saved){document.getElementById("displayNick").textContent=saved;document.getElementById("nickname").value=saved}}catch(e){}
 </script>
