@@ -87,8 +87,100 @@ function credentials(){const email=document.getElementById('authEmail').value.tr
 window.signUp=async function(){const v=credentials();if(!v)return;const {data,error}=await supabase.auth.signUp(v);if(error){message('Ошибка регистрации: '+error.message,'bad');return}if(data.session){message('Аккаунт создан, вход выполнен.','good')}else{message('Регистрация отправлена. Проверь почту для подтверждения адреса.','good')}await refreshSession()};
 window.signIn=async function(){const v=credentials();if(!v)return;const {error}=await supabase.auth.signInWithPassword(v);if(error){message('Не удалось войти: '+error.message,'bad');return}message('Вход выполнен!','good');await refreshSession()};
 window.signOut=async function(){if(!supabase)return;const {error}=await supabase.auth.signOut();if(error){message('Ошибка выхода: '+error.message,'bad');return}message('Ты вышел из аккаунта.');await refreshSession()};
-async function refreshSession(){if(!supabase)return;const {data}=await supabase.auth.getSession();const user=data.session?.user;document.getElementById('logoutBtn').style.display=user?'inline-block':'none';document.getElementById('loginBtn').style.display=user?'none':'inline-block';document.getElementById('registerBtn').style.display=user?'none':'inline-block';document.getElementById('profileEmail').textContent=user?user.email:'Войди, чтобы связать профиль с аккаунтом'}
-if(supabase){message('Supabase подключён. Можно зарегистрироваться или войти.','good');refreshSession();supabase.auth.onAuthStateChange(()=>refreshSession())}
+
+function resetStats() {
+  document.getElementById('statElo').textContent = '0';
+  document.getElementById('statWins').textContent = '0';
+  document.getElementById('statMatches').textContent = '0';
+  document.getElementById('statLosses').textContent = '0';
+  document.getElementById('statKD').textContent = '0.00';
+  document.getElementById('statWinRate').textContent = '0%';
+}
+
+async function loadPlayerStats(userId) {
+  const { data, error } = await supabase
+    .from('player_profiles')
+    .select('nickname, elo, matches_played, wins, losses, kills, deaths')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) {
+    toast('Ошибка загрузки статистики: ' + error.message);
+    return;
+  }
+
+  if (!data) {
+    resetStats();
+    return;
+  }
+
+  const wins = Number(data.wins) || 0;
+  const matches = Number(data.matches_played) || 0;
+  const kills = Number(data.kills) || 0;
+  const deaths = Number(data.deaths) || 0;
+
+  document.getElementById('statElo').textContent =
+    String(Number(data.elo) || 0);
+  document.getElementById('statWins').textContent = String(wins);
+  document.getElementById('statMatches').textContent = String(matches);
+  document.getElementById('statLosses').textContent =
+    String(Number(data.losses) || 0);
+
+  document.getElementById('statKD').textContent =
+    (deaths === 0 ? kills : kills / deaths).toFixed(2);
+
+  document.getElementById('statWinRate').textContent =
+    (matches ? Math.round(wins / matches * 100) : 0) + '%';
+
+  if (data.nickname) {
+    document.getElementById('displayNick').textContent = data.nickname;
+    document.getElementById('nickname').value = data.nickname;
+  }
+}
+
+async function refreshSession() {
+  if (!supabase) return;
+
+  const { data } = await supabase.auth.getSession();
+  const user = data.session?.user;
+
+  document.getElementById('logoutBtn').style.display =
+    user ? 'inline-block' : 'none';
+  document.getElementById('loginBtn').style.display =
+    user ? 'none' : 'inline-block';
+  document.getElementById('registerBtn').style.display =
+    user ? 'none' : 'inline-block';
+
+  document.getElementById('profileEmail').textContent =
+    user ? user.email : 'Войди, чтобы связать профиль с аккаунтом';
+
+  if (!user) {
+    resetStats();
+    return;
+  }
+
+  const { error } = await supabase
+    .from('player_profiles')
+    .upsert({
+      user_id: user.id,
+      elo: 0,
+      matches_played: 0,
+      wins: 0,
+      losses: 0,
+      kills: 0,
+      deaths: 0
+    }, {
+      onConflict: 'user_id',
+      ignoreDuplicates: true
+    });
+
+  if (error) {
+    toast('Ошибка профиля: ' + error.message);
+    return;
+  }
+
+  await loadPlayerStats(user.id);
+ }
  async function saveProfile(){
   const v = document.getElementById("nickname").value.trim();
 
@@ -361,3 +453,4 @@ try{const saved=localStorage.getItem("cf-faceit-nick");if(saved){document.getEle
 
 
  
+
