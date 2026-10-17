@@ -7,40 +7,20 @@
 <title>CF FACEIT — Counter Flame</title>
 <style>
 :root{color-scheme:dark;--bg:#101114;--panel:#191a1f;--line:#303139;--text:#f4f4f5;--muted:#a5a6ad;--orange:#ff6a1a;--green:#43d18b}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,Arial,sans-serif}
-button,input{font:inherit}
-button{cursor:pointer}
-.app{max-width:1120px;margin:auto;min-height:100vh}
-.top{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line);background:#101114;position:sticky;top:0}
-.brand{font-weight:900;font-size:21px}.brand span{color:var(--orange)}
-.logo{display:inline-block;width:13px;height:22px;background:var(--orange);margin-right:8px;clip-path:polygon(0 0,100% 50%,0 100%,20% 50%)}
-.online,.muted{color:var(--muted);font-size:12px}
-.content{padding:24px 20px 100px}
-.hero{padding:26px;border:1px solid #58331f;background:radial-gradient(ellipse at top right,#51240f,#191a1f 80%);border-radius:18px}
-.eyebrow{font-size:11px;letter-spacing:2px;color:var(--orange);font-weight:800}
-h1{font-size:clamp(29px,6vw,48px);line-height:1.05}
-.hero p{color:#c2c2c8;max-width:560px}
-.btn{border:0;border-radius:9px;padding:12px 16px;font-weight:800;background:var(--orange);color:#18100b;margin:4px 0}
-.secondary{background:#202127;color:var(--text);border:1px solid var(--line)}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 24px}
-.stat,.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px}
-.stat strong{display:block;font-size:22px}
-.section-head{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px}
-.section-head h2{font-size:18px;margin:0}
-.table{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--panel)}
-.player{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;padding:13px 14px;border-bottom:1px solid var(--line)}
-.rank{color:var(--muted);font-weight:800}.avatar{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:#303139;font-weight:900}
-.nick{font-weight:750}.elo{font-weight:900;color:var(--orange)}
-.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;background:#15161af5;border-top:1px solid var(--line);padding:8px;z-index:5}
-.tabs-inner{width:min(720px,100%);display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
-.tab{background:transparent;border:0;color:var(--muted);padding:8px 4px;border-radius:9px;font-size:12px}
-.tab.active{background:#3a2116;color:#ff9a62}.ico{display:block;font-size:19px}
-.page{display:none}.page.active{display:block}
-.match{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.pill{background:#26362d;color:var(--green);padding:4px 8px;border-radius:99px;font-size:11px;font-weight:800}
-.field{width:100%;background:#111216;border:1px solid var(--line);color:var(--text);padding:12px;border-radius:9px;margin:6px 0 12px}
-.notice{padding:12px;border:1px solid #5a3a22;background:#2a1d15;border-radius:10px;color:#f2c3a4;font-size:13px;margin-top:12px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,Arial,sans-serif}button,input{font:inherit}button{cursor:pointer}
+.app{max-width:1120px;margin:auto;min-height:100vh}.top{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line);background:#101114;position:sticky;top:0;z-index:4}
+.brand{font-weight:900;font-size:21px}.brand span{color:var(--orange)}.logo{display:inline-block;width:13px;height:22px;background:var(--orange);margin-right:8px;clip-path:polygon(0 0,100% 50%,0 100%,20% 50%)}
+.online,.muted{color:var(--muted);font-size:12px}.content{padding:24px 20px 100px}.hero{padding:26px;border:1px solid #58331f;background:radial-gradient(ellipse at top right,#51240f,#191a1f 80%);border-radius:18px}
+.eyebrow{font-size:11px;letter-spacing:2px;color:var(--orange);font-weight:800}h1{font-size:clamp(29px,6vw,48px);line-height:1.05}.hero p{color:#c2c2c8;max-width:560px}
+.btn{border:0;border-radius:9px;padding:12px 16px;font-weight:800;background:var(--orange);color:#18100b;margin:4px 0}.secondary{background:#202127;color:var(--text);border:1px solid var(--line)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 24px}.stat,.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px}.stat strong{display:block;font-size:22px}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px}.section-head h2{font-size:18px;margin:0}.table{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--panel)}
+.player{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;padding:13px 14px;border-bottom:1px solid var(--line)}.rank{color:var(--muted);font-weight:800}.avatar{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:#303139;font-weight:900}.nick{font-weight:750}.elo{font-weight:900;color:var(--orange)}
+.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;background:#15161af5;border-top:1px solid var(--line);padding:8px;z-index:5}.tabs-inner{width:min(720px,100%);display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.tab{background:transparent;border:0;color:var(--muted);padding:8px 4px;border-radius:9px;font-size:12px}.tab.active{background:#3a2116;color:#ff9a62}.ico{display:block;font-size:19px}.page{display:none}.page.active{display:block}
+.match{display:flex;justify-content:space-between;align-items:center;gap:12px}.pill{background:#26362d;color:var(--green);padding:4px 8px;border-radius:99px;font-size:11px;font-weight:800}
+.field{width:100%;background:#111216;border:1px solid var(--line);color:var(--text);padding:12px;border-radius:9px;margin:6px 0 12px}.notice{padding:12px;border:1px solid #5a3a22;background:#2a1d15;border-radius:10px;color:#f2c3a4;font-size:13px;margin-top:12px}
+.auth-status{padding:10px;border-radius:9px;background:#202127;color:#c9c9ce;margin:10px 0;font-size:13px;overflow-wrap:anywhere}.auth-status.good{border:1px solid #2b6b4b;color:#8ce2b2}.auth-status.bad{border:1px solid #75402c;color:#ffb28c}
 @media(min-width:760px){.content{padding:30px}.layout{display:grid;grid-template-columns:1.2fr .8fr;gap:20px}.tabs{position:static;background:transparent;border:0}.tabs-inner{display:flex}.tab{min-width:100px}}
 </style>
 </head>
@@ -62,21 +42,40 @@ h1{font-size:clamp(29px,6vw,48px);line-height:1.05}
 </section>
 <section id="ranking" class="page"><div class="eyebrow">COMPETITIVE</div><h1>Таблица лидеров</h1><p class="muted">Игроки и числа ниже — демонстрационные.</p><div class="table" id="ranklist"></div></section>
 <section id="matches" class="page"><div class="eyebrow">MATCHMAKING</div><h1>Матчи</h1><div class="card"><h3>Рейтинговый 5 на 5</h3><p>Подбор по рейтингу · карта выбирается игроками.</p><button class="btn" onclick="toast('Это демо. Сервер матчмейкинга ещё не подключён.')">＋ Создать лобби</button></div><div class="section-head"><h2>Активные лобби</h2></div><div class="card">Пока нет настоящих лобби. Нужен сервер для игры онлайн.</div><div class="notice">Кнопка пока не запускает матч в Counter Flame.</div></section>
-<section id="profile" class="page"><div class="eyebrow">PLAYER CARD</div><h1>Профиль игрока</h1><div class="card"><h2 id="displayNick">Гость</h2><div class="muted">Профиль на этом устройстве</div><div class="stats"><div class="stat"><strong>1000</strong><small>Стартовый ELO</small></div><div class="stat"><strong>0</strong><small>Победы</small></div><div class="stat"><strong>0</strong><small>Матчи</small></div></div></div>
-<div class="section-head"><h2>Настроить профиль</h2></div><div class="card"><label for="nickname">Игровой никнейм</label><input class="field" id="nickname" maxlength="20" placeholder="Например, Player123"><button class="btn" onclick="saveProfile()">Сохранить ник</button><div class="muted">Ник хранится только в этом браузере.</div></div></section>
-</main>
+<section id="profile" class="page"><div class="eyebrow">PLAYER CARD</div><h1>Профиль игрока</h1><div class="card"><h2 id="displayNick">Гость</h2><div id="profileEmail" class="muted">Войди, чтобы связать профиль с аккаунтом</div><div class="stats"><div class="stat"><strong>1000</strong><small>Стартовый ELO</small></div><div class="stat"><strong>0</strong><small>Победы</small></div><div class="stat"><strong>0</strong><small>Матчи</small></div></div></div>
+<div class="section-head"><h2>Аккаунт CF FACEIT</h2></div><div class="card">
+<p class="muted">Зарегистрируйся по электронной почте или войди в существующий аккаунт.</p>
+<label for="authEmail">Электронная почта</label><input class="field" id="authEmail" type="email" autocomplete="email" placeholder="you@example.com">
+<label for="authPassword">Пароль (минимум 6 символов)</label><input class="field" id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Введи пароль">
+<button class="btn" id="registerBtn" onclick="signUp()">Создать аккаунт</button><button class="btn secondary" id="loginBtn" onclick="signIn()">Войти</button><button class="btn secondary" id="logoutBtn" onclick="signOut()" style="display:none">Выйти</button>
+<div id="authMessage" class="auth-status">Нужно настроить подключение к Supabase в коде.</div></div>
+<div class="section-head"><h2>Настроить профиль</h2></div><div class="card"><label for="nickname">Игровой никнейм</label><input class="field" id="nickname" maxlength="20" placeholder="Например, Player123"><button class="btn" onclick="saveProfile()">Сохранить ник</button><div class="muted">Пока ник хранится только в этом браузере.</div></div>
+<div class="notice">Регистрация заработает после добавления Project URL и Publishable key. Никогда не вставляй секретный ключ или service_role.</div>
+</section></main>
 <nav class="tabs"><div class="tabs-inner"><button class="tab active" data-page="home" onclick="go('home')"><span class="ico">⌂</span>Главная</button><button class="tab" data-page="matches" onclick="go('matches')"><span class="ico">⚔</span>Матчи</button><button class="tab" data-page="ranking" onclick="go('ranking')"><span class="ico">♛</span>Рейтинг</button><button class="tab" data-page="profile" onclick="go('profile')"><span class="ico">♙</span>Профиль</button></div></nav>
-<div id="toast" class="notice" style="display:none;position:fixed;top:70px;left:5%;right:5%;z-index:10"></div>
-</div>
-<script>
+<div id="toast" class="notice" style="display:none;position:fixed;top:70px;left:5%;right:5%;z-index:10"></div></div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+// Вставь Project URL и Publishable key из Supabase ниже.
+// Используй только публичный publishable/anon key. Не используй secret/service_role.
+const SUPABASE_URL = 'https://jsmujmremucqodfchhas.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_0VOci2hUtLDsJwf9z8Y4lg_D3pLZT4h';
+const configured = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('PASTE_') && SUPABASE_PUBLISHABLE_KEY && !SUPABASE_PUBLISHABLE_KEY.includes('PASTE_');
+const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 const players=[["FlameX",2180],["CF_Killer",2045],["Shadow",1980],["Nova",1875],["RushB",1760],["Wepid",1690],["Ak47Pro",1580],["Ghost",1475]];
 function renderPlayers(id,limit){document.getElementById(id).innerHTML=players.slice(0,limit||players.length).map((p,i)=>`<div class="player"><div class="rank">#${i+1}</div><div style="display:flex;gap:10px;align-items:center"><div class="avatar">${p[0][0]}</div><div class="nick">${p[0]}<div class="muted">Игрок сообщества</div></div></div><div class="elo">${p[1]} ELO</div></div>`).join("")}
 renderPlayers("toplist",4);renderPlayers("ranklist");
-function go(page){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===page));document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.page===page));window.scrollTo({top:0,behavior:"smooth"})}
-function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.style.display="block";setTimeout(()=>el.style.display="none",2600)}
+window.go=function(page){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===page));document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.page===page));window.scrollTo({top:0,behavior:"smooth"})};
+window.toast=function(msg){const el=document.getElementById("toast");el.textContent=msg;el.style.display="block";setTimeout(()=>el.style.display="none",2600)};
+function message(msg,type=''){const el=document.getElementById('authMessage');el.textContent=msg;el.className='auth-status'+(type?' '+type:'')}
+function credentials(){const email=document.getElementById('authEmail').value.trim();const password=document.getElementById('authPassword').value;if(!email||!password){message('Введи электронную почту и пароль.','bad');return null}if(password.length<6){message('Пароль должен содержать минимум 6 символов.','bad');return null}if(!supabase){message('Подключение не настроено: добавь Project URL и Publishable key в код.','bad');return null}return {email,password}}
+window.signUp=async function(){const v=credentials();if(!v)return;const {data,error}=await supabase.auth.signUp(v);if(error){message('Ошибка регистрации: '+error.message,'bad');return}if(data.session){message('Аккаунт создан, вход выполнен.','good')}else{message('Регистрация отправлена. Проверь почту для подтверждения адреса.','good')}await refreshSession()};
+window.signIn=async function(){const v=credentials();if(!v)return;const {error}=await supabase.auth.signInWithPassword(v);if(error){message('Не удалось войти: '+error.message,'bad');return}message('Вход выполнен!','good');await refreshSession()};
+window.signOut=async function(){if(!supabase)return;const {error}=await supabase.auth.signOut();if(error){message('Ошибка выхода: '+error.message,'bad');return}message('Ты вышел из аккаунта.');await refreshSession()};
+async function refreshSession(){if(!supabase)return;const {data}=await supabase.auth.getSession();const user=data.session?.user;document.getElementById('logoutBtn').style.display=user?'inline-block':'none';document.getElementById('loginBtn').style.display=user?'none':'inline-block';document.getElementById('registerBtn').style.display=user?'none':'inline-block';document.getElementById('profileEmail').textContent=user?user.email:'Войди, чтобы связать профиль с аккаунтом'}
+if(supabase){message('Supabase подключён. Можно зарегистрироваться или войти.','good');refreshSession();supabase.auth.onAuthStateChange(()=>refreshSession())}
 function saveProfile(){const v=document.getElementById("nickname").value.trim();if(!v){toast("Сначала введи никнейм.");return}try{localStorage.setItem("cf-faceit-nick",v)}catch(e){}document.getElementById("displayNick").textContent=v;toast("Ник сохранён на этом устройстве!")}
+window.saveProfile=saveProfile;
 try{const saved=localStorage.getItem("cf-faceit-nick");if(saved){document.getElementById("displayNick").textContent=saved;document.getElementById("nickname").value=saved}}catch(e){}
 </script>
-</body>
-  </htm
-    l>
+</body></html>
