@@ -41,45 +41,18 @@
 <div class="muted">CF FACEIT — независимый концепт сообщества.</div></div></div>
 </section>
 <section id="ranking" class="page"><div class="eyebrow">COMPETITIVE</div><h1>Таблица лидеров</h1><p class="muted">Игроки и числа ниже — демонстрационные.</p><div class="table" id="ranklist"></div></section>
-
 <section id="matches" class="page">
-  <div class="eyebrow">CF FACEIT MATCHMAKING</div>
-  <h1>Матчи 5×5</h1>
-
-  <div class="card">
-    <h3>Создать рейтинговое лобби</h3>
-    <p class="muted">Максимум 10 игроков · Формат 5 на 5</p>
-
-    <label for="lobbyTitle">Название лобби</label>
-    <input class="field" id="lobbyTitle" maxlength="40"
-      placeholder="Например, WPSQ Ranked">
-
-    <label for="lobbyMap">Карта</label>
-    <select class="field" id="lobbyMap">
-      <option value="Не выбрана">Не выбрана</option>
-      <option value="Sandstone">Sandstone</option>
-      <option value="Province">Province</option>
-      <option value="Rust">Rust</option>
-      <option value="Zone 7">Zone 7</option>
-    </select>
-
-    <button class="btn" onclick="createLobby()">
-      ＋ Создать лобби
-    </button>
-  </div>
-
-  <div class="section-head">
-    <h2>Активные лобби</h2>
-    <button class="btn secondary" onclick="loadLobbies()">
-      Обновить
-    </button>
-  </div>
-
-  <div id="lobbyList" class="card">
-    Нажми «Обновить», чтобы загрузить лобби.
-  </div>
-</s
-  ection>
+<div class="eyebrow">CF FACEIT MATCHMAKING</div>
+<h1>Матчи 5×5</h1><div class="card">
+<h3>Создать рейтинговое лобби</h3>
+<p class="muted">Максимум 10 игроков · Формат 5 на 5</p>
+<label for="lobbyTitle">Название лобби</label>
+<input class="field" id="lobbyTitle" maxlength="40"placeholder="Например, WPSQ Ranked">
+<label for="lobbyMap">Карта</label>
+<select class="field" id="lobbyMap">
+<option value="Не выбрана">Не выбрана</option><option value="Sandstone">Sandstone</option><option value="Province">Province</option><option value="Rust">Rust</option><option value="Zone 7">Zone 7</option></select><button class="btn" onclick="createLobby()"> ＋ Создать лобби</button></div><div class="section-head"><h2>Активные лобби</h2><button class="btn secondary" onclick="loadLobbies()">Обновить</button></div>
+<div id="lobbyList" class="card">Нажми «Обновить», чтобы загрузить лобби.</div>
+</section>
 <section id="profile" class="page"><div class="eyebrow">PLAYER CARD</div><h1>Профиль игрока</h1><div class="card"><h2 id="displayNick">Гость</h2><div id="profileEmail" class="muted">Войди, чтобы связать профиль с аккаунтом</div><div class="stats"><div class="stat"><strong>1000</strong><small>Стартовый ELO</small></div><div class="stat"><strong>0</strong><small>Победы</small></div><div class="stat"><strong>0</strong><small>Матчи</small></div></div></div>
 <div class="section-head"><h2>Аккаунт CF FACEIT</h2></div><div class="card">
 <p class="muted">Зарегистрируйся по электронной почте или войди в существующий аккаунт.</p>
