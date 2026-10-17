@@ -41,7 +41,45 @@
 <div class="muted">CF FACEIT — независимый концепт сообщества.</div></div></div>
 </section>
 <section id="ranking" class="page"><div class="eyebrow">COMPETITIVE</div><h1>Таблица лидеров</h1><p class="muted">Игроки и числа ниже — демонстрационные.</p><div class="table" id="ranklist"></div></section>
-<section id="matches" class="page"><div class="eyebrow">MATCHMAKING</div><h1>Матчи</h1><div class="card"><h3>Рейтинговый 5 на 5</h3><p>Подбор по рейтингу · карта выбирается игроками.</p><button class="btn" onclick="toast('Это демо. Сервер матчмейкинга ещё не подключён.')">＋ Создать лобби</button></div><div class="section-head"><h2>Активные лобби</h2></div><div class="card">Пока нет настоящих лобби. Нужен сервер для игры онлайн.</div><div class="notice">Кнопка пока не запускает матч в Counter Flame.</div></section>
+
+<section id="matches" class="page">
+  <div class="eyebrow">CF FACEIT MATCHMAKING</div>
+  <h1>Матчи 5×5</h1>
+
+  <div class="card">
+    <h3>Создать рейтинговое лобби</h3>
+    <p class="muted">Максимум 10 игроков · Формат 5 на 5</p>
+
+    <label for="lobbyTitle">Название лобби</label>
+    <input class="field" id="lobbyTitle" maxlength="40"
+      placeholder="Например, WPSQ Ranked">
+
+    <label for="lobbyMap">Карта</label>
+    <select class="field" id="lobbyMap">
+      <option value="Не выбрана">Не выбрана</option>
+      <option value="Sandstone">Sandstone</option>
+      <option value="Province">Province</option>
+      <option value="Rust">Rust</option>
+      <option value="Zone 7">Zone 7</option>
+    </select>
+
+    <button class="btn" onclick="createLobby()">
+      ＋ Создать лобби
+    </button>
+  </div>
+
+  <div class="section-head">
+    <h2>Активные лобби</h2>
+    <button class="btn secondary" onclick="loadLobbies()">
+      Обновить
+    </button>
+  </div>
+
+  <div id="lobbyList" class="card">
+    Нажми «Обновить», чтобы загрузить лобби.
+  </div>
+</s
+  ection>
 <section id="profile" class="page"><div class="eyebrow">PLAYER CARD</div><h1>Профиль игрока</h1><div class="card"><h2 id="displayNick">Гость</h2><div id="profileEmail" class="muted">Войди, чтобы связать профиль с аккаунтом</div><div class="stats"><div class="stat"><strong>1000</strong><small>Стартовый ELO</small></div><div class="stat"><strong>0</strong><small>Победы</small></div><div class="stat"><strong>0</strong><small>Матчи</small></div></div></div>
 <div class="section-head"><h2>Аккаунт CF FACEIT</h2></div><div class="card">
 <p class="muted">Зарегистрируйся по электронной почте или войди в существующий аккаунт.</p>
@@ -76,6 +114,105 @@ async function refreshSession(){if(!supabase)return;const {data}=await supabase.
 if(supabase){message('Supabase подключён. Можно зарегистрироваться или войти.','good');refreshSession();supabase.auth.onAuthStateChange(()=>refreshSession())}
 function saveProfile(){const v=document.getElementById("nickname").value.trim();if(!v){toast("Сначала введи никнейм.");return}try{localStorage.setItem("cf-faceit-nick",v)}catch(e){}document.getElementById("displayNick").textContent=v;toast("Ник сохранён на этом устройстве!")}
 window.saveProfile=saveProfile;
+  
+window.createLobby = async function() {
+  if (!supabase) {
+    toast("Supabase не подключён.");
+    return;
+  }
+
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData.session?.user;
+
+  if (!user) {
+    toast("Сначала войди в аккаунт.");
+    go("profile");
+    return;
+  }
+
+  const title = document.getElementById("lobbyTitle").value.trim() || "Рейтинговое лобби";
+  const mapName = document.getElementById("lobbyMap").value;
+
+  const { data, error } = await supabase.from("lobbies").insert({
+    owner_id: user.id,
+    title: title,
+    game_mode: "5v5",
+    map_name: mapName,
+    max_players: 10
+  }).select().single();
+
+  if (error) {
+    toast("Ошибка: " + error.message);
+    return;
+  }
+
+  const { error: joinError } = await supabase.from("lobby_players").insert({
+    lobby_id: data.id,
+    player_id: user.id
+  });
+
+  if (joinError) {
+    toast("Лобби создано, но владелец не добавлен.");
+  } else {
+    toast("Лобби создано!");
+  }
+
+  window.loadLobbies();
+};
+
+window.loadLobbies = async function() {
+  const list = document.getElementById("lobbyList");
+
+  if (!supabase) {
+    list.textContent = "Supabase не подключён.";
+    return;
+  }
+
+  const { data: sessionData } = await supabase.auth.getSession();
+
+  if (!sessionData.session?.user) {
+    list.textContent = "Сначала войди в аккаунт.";
+    return;
+  }
+
+  const { data, error } = await supabase.from("lobbies")
+    .select("id, title, map_name, game_mode, max_players, created_at")
+    .eq("status", "waiting")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    list.textContent = "Ошибка загрузки: " + error.message;
+    return;
+  }
+
+  list.replaceChildren();
+
+  if (!data.length) {
+    list.textContent = "Лобби пока нет. Создай первое!";
+    return;
+  }
+
+  for (const lobby of data) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.marginBottom = "10px";
+
+    const heading = document.createElement("h3");
+    heading.textContent = lobby.title;
+
+    const info = document.createElement("p");
+    info.className = "muted";
+    info.textContent = "Режим: 5 на 5 · Карта: " + lobby.map_name;
+
+    const count = document.createElement("p");
+    count.textContent = "Максимум игроков: 10";
+
+    card.append(heading, info, count);
+    list.appendChild(card);
+  }
+};
 try{const saved=localStorage.getItem("cf-faceit-nick");if(saved){document.getElementById("displayNick").textContent=saved;document.getElementById("nickname").value=saved}}catch(e){}
 </script>
 </body></html>
+
+  
