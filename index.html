@@ -89,52 +89,22 @@ window.signIn=async function(){const v=credentials();if(!v)return;const {error}=
 window.signOut=async function(){if(!supabase)return;const {error}=await supabase.auth.signOut();if(error){message('Ошибка выхода: '+error.message,'bad');return}message('Ты вышел из аккаунта.');await refreshSession()};
 async function refreshSession(){if(!supabase)return;const {data}=await supabase.auth.getSession();const user=data.session?.user;document.getElementById('logoutBtn').style.display=user?'inline-block':'none';document.getElementById('loginBtn').style.display=user?'none':'inline-block';document.getElementById('registerBtn').style.display=user?'none':'inline-block';document.getElementById('profileEmail').textContent=user?user.email:'Войди, чтобы связать профиль с аккаунтом'}
 if(supabase){message('Supabase подключён. Можно зарегистрироваться или войти.','good');refreshSession();supabase.auth.onAuthStateChange(()=>refreshSession())}
-function saveProfile(){const v=document.getElementById("nickname").value.trim();if(!v){toast("Сначала введи никнейм.");return}try{localStorage.setItem("cf-faceit-nick",v)}catch(e){}document.getElementById("displayNick").textContent=v;toast("Ник сохранён на этом устройстве!")}
+function saveProfile(){constv=document.getElementById("nickname").value.trim();if(!v){toast("Сначала введи никнейм.");return}try{localStorage.setItem("cf-faceit-nick",v)}catch(e){}document.getElementById("displayNick").textContent=v;toast("Ник сохранён на этом устройстве!")}
 window.saveProfile=saveProfile;
-  
-window.createLobby = async function() {
-  if (!supabase) {
-    toast("Supabase не подключён.");
-    return;
-  }
-
-  const { data: sessionData } = await supabase.auth.getSession();
-  const user = sessionData.session?.user;
-
-  if (!user) {
-    toast("Сначала войди в аккаунт.");
-    go("profile");
-    return;
-  }
-
-  const title = document.getElementById("lobbyTitle").value.trim() || "Рейтинговое лобби";
-  const mapName = document.getElementById("lobbyMap").value;
-
-  const { data, error } = await supabase.from("lobbies").insert({
-    owner_id: user.id,
-    title: title,
-    game_mode: "5v5",
-    map_name: mapName,
-    max_players: 10
-  }).select().single();
-
-  if (error) {
-    toast("Ошибка: " + error.message);
-    return;
-  }
-
-  const { error: joinError } = await supabase.from("lobby_players").insert({
-    lobby_id: data.id,
-    player_id: user.id
-  });
-
-  if (joinError) {
-    toast("Лобби создано, но владелец не добавлен.");
+window.createLobby = async function() {if (!supabase) {toast("Supabase не подключён.");return;}const { data: sessionData } = await supabase.auth.getSession();const user = sessionData.session?.user;if (!user) {toast("Сначала войди в аккаунт.");go("profile");return;}
+const title = document.getElementById("lobbyTitle").value.trim() || "Рейтинговое лобби";
+const mapName = document.getElementById("lobbyMap").value;
+const { data, error } = await supabase.from("lobbies").insert({owner_id: user.id,title: title,game_mode: "5v5",map_name: mapName,max_players: 10}).select().single();
+if (error) {toast("Ошибка: " + error.message);return;}
+const { error: joinError } = await supabase.rpc("join_lobby", {p_lobby_id: data.id});if (joinError) {
+    toast("Лобби создано, но владелец не добавлен: " + joinError.message);
   } else {
     toast("Лобби создано!");
   }
 
-  
+  await window.loadLobbies();
+};
+
 window.loadLobbies = async function() {
   const list = document.getElementById("lobbyList");
 
@@ -144,7 +114,9 @@ window.loadLobbies = async function() {
   }
 
   const { data: sessionData } = await supabase.auth.getSession();
-  if (!sessionData.session?.user) {
+  const user = sessionData.session?.user;
+
+  if (!user) {
     list.textContent = "Сначала войди в аккаунт.";
     return;
   }
@@ -182,6 +154,9 @@ window.loadLobbies = async function() {
     const lobbyMembers = members.filter(
       member => member.lobby_id === lobby.id
     );
+    const alreadyJoined = lobbyMembers.some(
+      member => member.player_id === user.id
+    );
 
     const card = document.createElement("div");
     card.className = "card";
@@ -195,26 +170,19 @@ window.loadLobbies = async function() {
     info.textContent = "Counter Flame · 5 на 5 · Карта: " + lobby.map_name;
 
     const count = document.createElement("p");
-    count.textContent =
-      "Игроки: " + lobbyMembers.length + "/" + lobby.max_players;
+    count.textContent = "Игроки: " + lobbyMembers.length + "/" + lobby.max_players;
 
     const joinButton = document.createElement("button");
     joinButton.className = "btn";
-    joinButton.textContent = lobbyMembers.some(
-      member => member.player_id === sessionData.session.user.id
-    ) ? "Ты уже в лобби" : "Присоединиться";
-
-    joinButton.disabled = lobbyMembers.some(
-      member => member.player_id === sessionData.session.user.id
-    ) || lobbyMembers.length >= lobby.max_players;
-
+    joinButton.textContent = alreadyJoined ? "Ты уже в лобби" : "Присоединиться";
+    joinButton.disabled = alreadyJoined || lobbyMembers.length >= lobby.max_players;
     joinButton.onclick = () => window.joinLobby(lobby.id);
 
     card.append(heading, info, count, joinButton);
-    list.appendCh
-  ild(card);
+    list.appendChild(card);
   }
 };
+
 window.joinLobby = async function(lobbyId) {
   if (!supabase) {
     toast("Supabase не подключён.");
@@ -222,6 +190,7 @@ window.joinLobby = async function(lobbyId) {
   }
 
   const { data: sessionData } = await supabase.auth.getSession();
+
   if (!sessionData.session?.user) {
     toast("Сначала войди в аккаунт.");
     go("profile");
@@ -238,11 +207,12 @@ window.joinLobby = async function(lobbyId) {
   }
 
   toast("Ты присоединился к лобби!");
-  await window.loadLobbies()
-  ;
+  await window.loadLobbies();
 };
 try{const saved=localStorage.getItem("cf-faceit-nick");if(saved){document.getElementById("displayNick").textContent=saved;document.getElementById("nickname").value=saved}}catch(e){}
 </script>
-</body></html>
+</body>
+</html>
 
   
+
